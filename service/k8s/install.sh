@@ -48,23 +48,21 @@ else
     PACKAGE_URL=packages.cloud.google.com
 fi
 
-
+# 参考：https://developer.aliyun.com/mirror/kubernetes/
 if [ -n "$(command -v yum)" ];then # for centos
-cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+cat <<EOF | tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
-baseurl=https://$PACKAGE_URL/yum/repos/kubernetes-el7-\$basearch
+baseurl=https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.28/rpm/
 enabled=1
 gpgcheck=1
-repo_gpgcheck=1
-gpgkey=https://$PACKAGE_URL/yum/doc/yum-key.gpg https://$PACKAGE_URL/yum/doc/rpm-package-key.gpg
-exclude=kubelet kubeadm kubectl
+gpgkey=https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.28/rpm/repodata/repomd.xml.key
 EOF
 
 # Set SELinux in permissive mode (effectively disabling it)
 sudo setenforce 0
 sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
-sh -c "sudo yum install -y kubelet-$KUBE_VERSION kubeadm-$KUBE_VERSION kubectl-$KUBE_VERSION --disableexcludes=kubernetes"
+sh -c "sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes"
 
 elif [ -n "$(command -v apt)" ];then # ubuntu
   sudo apt update

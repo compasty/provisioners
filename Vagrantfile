@@ -9,8 +9,8 @@ BOXES ={
   "ubuntu" => "ubuntu/focal64",
   "centos" => "centos/7"
 }
-DISTRO = "ubuntu" # centos/ubuntu
-MIRROR = "tencent" # <empty>/aliyun/tencent
+DISTRO = "centos" # centos/ubuntu
+MIRROR = "aliyun" # <empty>/aliyun/tencent
 ADMIN_IP = "192.168.56.10"
 NODES = 2
 
@@ -26,6 +26,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       v.cpus = 2
     end
 
+    #配置当前文件夹同步到虚拟机的vagrant目录
+    #rsync指定同步方式，rsync可以实现单向的，一次性的同步
     admin.vm.synced_folder ".", "/vagrant", type: "rsync"
 
     #Private_network Settings
@@ -37,7 +39,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     admin.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
     # Provision admin Node
-    admin.vm.provision "shell", path: "./init/init.sh", args: "#{MIRROR} #{DOCKER_USERNAME} #{DOCKER_PASSWORD} #{DOCKER_REGISTRY}", privileged: false, reset: true
+    admin.vm.provision "shell", path: "./init/init.sh", args: "#{MIRROR}", privileged: false, reset: true
     admin.vm.provision "shell", path: "./solution/#{SOLUTION}/admin.sh", args: "#{ADMIN_IP}", privileged: false, reset: true
   end
 
@@ -63,7 +65,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       node.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
       # Provision node Node
-      node.vm.provision "shell", path: "./init/init.sh", args: "#{MIRROR} #{DOCKER_USERNAME} #{DOCKER_PASSWORD} #{DOCKER_REGISTRY}", privileged: false, reset: true
+      node.vm.provision "shell", path: "./init/init.sh", args: "#{MIRROR}", privileged: false, reset: true
       node.vm.provision "shell", path: "./solution/#{SOLUTION}/node.sh", args: "#{ADMIN_IP}", privileged: false, reset: true
     end
   end
